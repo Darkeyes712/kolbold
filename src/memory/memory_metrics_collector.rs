@@ -15,14 +15,17 @@
 //! - `MemorySysMetricsCollectorAsync`: Trait for asynchronous memory metric collection.
 //! - `MemoryCollectorLock` and `MemoryCollectorLockAsync`: Traits for safely locking collectors in synchronous and asynchronous environments.
 //!
+//! ## Key Features
+//! - `SingleSystemMetricsCollector`, `SystemMetricsCollectorSync`, and `SystemMetricsCollectorAsync` now implement the `Default` trait for convenient instantiation using `::default()`.
+//!
 //! ## Example Usage
 //! ```rust
 //! use kolbold::system_metrics::MemorySysMetricsCollectorSync;
-//! use kolbold::memory::memory_measurement::{MemoryMeasurementData, SingleSystemMetricsCollector};
+//! use kolbold::memory::memory_metrics_collector::{MemoryMeasurementData, SingleSystemMetricsCollector};
 //! use anyhow::Result;
 //!
 //! fn measure_memory() -> Result<MemoryMeasurementData> {
-//!     let mut collector = SingleSystemMetricsCollector::new();
+//!     let mut collector = SingleSystemMetricsCollector::default(); // Using Default trait
 //!     let initial_mem_usage = collector.refresh_initial_metrics()?;
 //!     
 //!     // Simulate a process to measure
@@ -40,6 +43,7 @@
 //!
 //! ## Notes
 //! - The module uses `sysinfo` for retrieving system-level metrics and wraps it for custom error handling using `MetricError`.
+//! - The `Default` implementation for `SingleSystemMetricsCollector`, `SystemMetricsCollectorSync`, and `SystemMetricsCollectorAsync` allows for straightforward initialization without needing to call `new()` directly.
 //! - The module's structures and methods are designed for use in benchmarking scenarios where precise memory usage tracking is required.
 
 use super::super::{
@@ -92,7 +96,7 @@ impl fmt::Display for MemoryMeasurementData {
         if let Some(ref threads) = self.thread_metrics {
             write!(f, "\nThread Metrics:\n")?;
             for thread in threads {
-                write!(f, "{:?}\n", thread)?;
+                writeln!(f, "{:?}", thread)?;
             }
         }
 
@@ -133,6 +137,12 @@ impl MemoryMeasurementData {
 pub struct SingleSystemMetricsCollector {
     /// The `System` instance used to gather system metrics.
     system: System,
+}
+
+impl Default for SingleSystemMetricsCollector {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl MemorySysMetricsCollectorSync for SingleSystemMetricsCollector {
@@ -177,7 +187,8 @@ impl SingleSystemMetricsCollector {
     pub fn refresh_initial_metrics(&mut self) -> Result<u64, MetricError> {
         self.refresh_memory();
 
-        Ok(self.memory_usage()?)
+        let mem_usage = self.memory_usage()?;
+        Ok(mem_usage)
     }
 
     /// Refreshes the final memory metrics and calculates the average memory usage.
@@ -202,6 +213,12 @@ impl SingleSystemMetricsCollector {
 pub struct SystemMetricsCollectorSync {
     /// A System instance to refresh and retrieve metrics wrapped in sync Arc and Mutex for safe thread sharing
     system: Arc<Mutex<System>>,
+}
+
+impl Default for SystemMetricsCollectorSync {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl MemorySysMetricsCollectorSync for SystemMetricsCollectorSync {
@@ -351,6 +368,12 @@ impl SystemMetricsCollectorSync {
 pub struct SystemMetricsCollectorAsync {
     /// The `System` instance wrapped in `Arc<AsyncMutex>` for safe concurrent access.
     system: Arc<AsyncMutex<System>>,
+}
+
+impl Default for SystemMetricsCollectorAsync {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[async_trait::async_trait]

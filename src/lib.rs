@@ -19,7 +19,8 @@
 //!
 //! ## Example Usage
 //! ```rust
-//! use your_crate::{TimeComplexity, MemoryComplexity};
+//! use kolbold::{TimeComplexity, MemoryComplexity, TimeMeasurement, MemoryMeasurement};
+//!
 //!
 //! // Measure time complexity of a single-threaded synchronous process
 //! TimeMeasurement::measure_single_thread_sync(|| {

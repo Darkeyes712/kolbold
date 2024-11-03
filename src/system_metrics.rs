@@ -32,7 +32,7 @@
 //!         // Implementation for refreshing CPU metrics
 //!     }
 //!
-//!     fn cpu_usage(&self) -> Result<f32, your_crate::MetricError> {
+//!     fn cpu_usage(&self) -> Result<f32, kolbold::error::MetricError> {
 //!         // Implementation for retrieving CPU usage
 //!         Ok(42.0) // Example CPU usage
 //!     }

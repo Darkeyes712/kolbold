@@ -16,6 +16,17 @@
 //! - Measure time and CPU usage for single-threaded and multi-threaded code execution.
 //! - Supports both synchronous and asynchronous metric collection.
 //! - Collects detailed thread-specific metrics when running in multi-threaded mode.
+//! - `SystemMetricsCollectorSync` and `SystemMetricsCollectorAsync` now implement the `Default` trait, allowing for easy instantiation using `::default()`.
+//!
+//! ## Instantiation
+//! Collectors can be instantiated using the `new()` method or the `Default` trait:
+//! ```rust
+//! use kolbold::memory::memory_metrics_collector::SystemMetricsCollectorSync;
+//! use kolbold::memory::memory_metrics_collector::SystemMetricsCollectorAsync;
+//!
+//! let sync_collector = SystemMetricsCollectorSync::new();
+//! let async_collector = SystemMetricsCollectorAsync::default(); // Equivalent to `SystemMetricsCollectorAsync::new()`
+//! ```
 //!
 //! ## Example Usage
 //! ```rust
@@ -107,7 +118,7 @@ impl fmt::Display for TimeMeasurementData {
         if let Some(ref threads) = self.thread_metrics {
             write!(f, "\nThread Metrics:\n")?;
             for thread in threads {
-                write!(f, "{:?}\n", thread)?;
+                writeln!(f, "{:?}", thread)?;
             }
         }
 
@@ -148,6 +159,12 @@ impl TimeMeasurementData {
 pub struct SingleSystemMetricsCollector {
     /// A System instance to refresh and retrieve metrics
     system: System,
+}
+
+impl Default for SingleSystemMetricsCollector {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl TimeSysMetricsCollectorSync for SingleSystemMetricsCollector {
@@ -240,6 +257,12 @@ impl SingleSystemMetricsCollector {
 pub struct SystemMetricsCollectorSync {
     /// A System instance to refresh and retrieve metrics wrapped in sync Arc and Mutex for safe thread sharing
     system: Arc<Mutex<System>>,
+}
+
+impl Default for SystemMetricsCollectorSync {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl TimeSysMetricsCollectorSync for SystemMetricsCollectorSync {
@@ -394,6 +417,12 @@ impl SystemMetricsCollectorSync {
 pub struct SystemMetricsCollectorAsync {
     /// The `System` instance wrapped in `Arc<AsyncMutex>` for safe concurrent access.
     system: Arc<AsyncMutex<System>>,
+}
+
+impl Default for SystemMetricsCollectorAsync {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[async_trait::async_trait]
