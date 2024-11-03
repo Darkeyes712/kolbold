@@ -104,7 +104,7 @@ For detailed API documentation and examples, refer to the [full documentation](h
 
 ## Contributing
 
-Contributions are welcome! If you want to contribute to the project, please check out the [Contributing guidelines](CONTRIBUTING.md) for more information.
+Contributions are welcome! If you want to contribute to the project, please check out the [Contributing guidelines](https://github.com/Darkeyes712/kolbold/blob/master/CONTRIBUTING.md) for more information.
 
 ## License
 
