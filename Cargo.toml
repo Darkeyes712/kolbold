@@ -4,7 +4,7 @@ version = "1.0.0"
 edition = "2021"
 authors = ["Nikola Kolev <nikolakolev712@gmail.com>"]
 description = "A Rust library for memory and time metrics collection."
-license = "Apache License 2.0"
+license = "Apache-2.0"
 repository = "https://github.com/Darkeyes712/kolbold"
 documentation = "https://docs.rs/kolbold"
 
