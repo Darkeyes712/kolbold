@@ -1,0 +1,46 @@
+name: CI Checks
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Rust
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          override: true
+
+      # Run cargo fmt to check formatting
+      - name: Run cargo fmt
+        run: cargo fmt --all -- --check
+
+      # Run cargo clippy to catch lints and warnings
+      - name: Run cargo clippy
+        run: cargo clippy --all-features --all-targets -- -D warnings
+
+      # Run tests
+      - name: Run cargo test
+        run: cargo test --all-features --all-targets
+
+      # Install cargo-audit
+      - name: Install cargo audit
+        run: cargo install cargo-audit
+
+      # Run cargo audit to check for vulnerabilities
+      - name: Run cargo audit
+        run: cargo audit
