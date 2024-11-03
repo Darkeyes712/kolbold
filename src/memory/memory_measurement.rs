@@ -284,14 +284,13 @@ mod test {
                 .collect::<Vec<u64>>();
         });
 
-        let _ = handles.join().unwrap();
+        handles.join().unwrap();
     }
 
     #[test]
     fn test_sync_single_thread_code_print() -> Result<()> {
-        let data = MemoryMeasurement::measure_single_thread_sync(|| {
-            create_single_thread_test_conditions()
-        });
+        let data =
+            MemoryMeasurement::measure_single_thread_sync(create_single_thread_test_conditions);
 
         assert!(data.is_ok());
 
@@ -301,7 +300,7 @@ mod test {
     #[test]
     fn test_sync_multi_thread_code_print() -> Result<()> {
         let data =
-            MemoryMeasurement::measure_multi_thread_sync(|| create_multi_thread_test_conditions());
+            MemoryMeasurement::measure_multi_thread_sync(create_multi_thread_test_conditions);
 
         assert!(data.is_ok());
 
@@ -310,9 +309,8 @@ mod test {
 
     #[tokio::test]
     async fn test_async_single_thread_code_print() -> Result<()> {
-        let data = MemoryMeasurement::measure_single_thread_sync(|| {
-            create_single_thread_test_conditions()
-        });
+        let data =
+            MemoryMeasurement::measure_single_thread_sync(create_single_thread_test_conditions);
 
         assert!(data.is_ok());
 
@@ -323,7 +321,7 @@ mod test {
     #[tokio::test(flavor = "multi_thread", worker_threads = 16)]
     async fn test_async_multi_thread_code_print() -> Result<()> {
         let data =
-            MemoryMeasurement::measure_multi_thread_async(|| create_multi_thread_test_conditions())
+            MemoryMeasurement::measure_multi_thread_async(create_multi_thread_test_conditions)
                 .await;
 
         assert!(data.is_ok());
