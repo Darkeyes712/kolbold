@@ -1,6 +1,6 @@
 [package]
 name = "kolbold"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2021"
 authors = ["Nikola Kolev <nikolakolev712@gmail.com>"]
 description = "A Rust library for memory and time metrics collection."
