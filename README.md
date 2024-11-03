@@ -104,11 +104,11 @@ For detailed API documentation and examples, refer to the [full documentation](h
 
 ## Contributing
 
-Contributions are welcome! If you want to contribute to the project, please check out the [contributing guidelines](CONTRIBUTING.md) for more information.
+Contributions are welcome! If you want to contribute to the project, please check out the [Contributing guidelines](CONTRIBUTING.md) for more information.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/Darkeyes712/kolbold/blob/master/LICENSE) file for details.
+This project is licensed under the MIT License. See the [Apache 2.0 License](https://github.com/Darkeyes712/kolbold/blob/master/LICENSE) file for details.
 
 ## Contact
 
