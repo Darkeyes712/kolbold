@@ -108,7 +108,7 @@ Contributions are welcome! If you want to contribute to the project, please chec
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/Darkeyes712/kolbold/blob/master/LICENSE) file for details.
 
 ## Contact
 
