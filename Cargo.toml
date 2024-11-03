@@ -1,12 +1,17 @@
 [package]
 name = "kolbold"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 authors = ["Nikola Kolev <nikolakolev712@gmail.com>"]
 description = "A Rust library for memory and time metrics collection."
 license = "Apache-2.0"
 repository = "https://github.com/Darkeyes712/kolbold"
 documentation = "https://docs.rs/kolbold"
+
+[package.metadata.docs.rs]
+all-features = true
+no-default-features = false
+features = ["full"]
 
 [dependencies]
 # Logging
