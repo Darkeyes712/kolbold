@@ -108,7 +108,7 @@ Contributions are welcome! If you want to contribute to the project, please chec
 
 ## License
 
-This project is licensed under the MIT License. See the [Apache 2.0 License](https://github.com/Darkeyes712/kolbold/blob/master/LICENSE) file for details.
+This project is licensed under the Apache 2.0 License License. See the [Apache 2.0 License](https://github.com/Darkeyes712/kolbold/blob/master/LICENSE) file for details.
 
 ## Contact
 
