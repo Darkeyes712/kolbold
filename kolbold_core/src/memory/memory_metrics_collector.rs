@@ -5,23 +5,27 @@
 //! benchmarking and analyzing memory usage in complex, concurrent Rust applications.
 //!
 //! ## Overview
-//! - `MemoryMeasurementData`: Represents data collected during a memory measurement session.
-//! - `SingleSystemMetricsCollector`: Collects system-level memory metrics synchronously.
-//! - `SystemMetricsCollectorSync`: Collects memory metrics in a multi-threaded synchronous context.
-//! - `SystemMetricsCollectorAsync`: Collects memory metrics in an asynchronous context.
+//! - `MemoryMeasurementData`: Represents data collected during a memory measurement session, including
+//!   start and end timestamps, elapsed time, total memory usage, and optional thread-specific metrics.
+//! - `SingleSystemMetricsCollector`: Collects system-level memory metrics synchronously in a single-threaded context.
+//! - `SystemMetricsCollectorSync`: Manages memory metrics collection across multiple threads synchronously.
+//! - `SystemMetricsCollectorAsync`: Handles memory metrics collection asynchronously in a multi-threaded environment.
 //!
-//! ## Traits Implemented
+//! ## Key Traits
 //! - `MemorySysMetricsCollectorSync`: Trait for synchronous memory metric collection.
 //! - `MemorySysMetricsCollectorAsync`: Trait for asynchronous memory metric collection.
 //! - `MemoryCollectorLock` and `MemoryCollectorLockAsync`: Traits for safely locking collectors in synchronous and asynchronous environments.
 //!
 //! ## Key Features
-//! - `SingleSystemMetricsCollector`, `SystemMetricsCollectorSync`, and `SystemMetricsCollectorAsync` now implement the `Default` trait for convenient instantiation using `::default()`.
+//! - `SingleSystemMetricsCollector`, `SystemMetricsCollectorSync`, and `SystemMetricsCollectorAsync` implement the `Default` trait for convenient instantiation using `::default()`.
+//! - Multi-threaded collection enables detailed thread-specific metrics, facilitating in-depth analysis of memory usage across concurrent threads.
 //!
 //! ## Example Usage
+//! Here’s how to use `SingleSystemMetricsCollector` for a synchronous memory measurement, demonstrating `Default` for initialization:
+//!
 //! ```rust
-//! use kolbold::system_metrics::MemorySysMetricsCollectorSync;
-//! use kolbold::memory::memory_metrics_collector::{MemoryMeasurementData, SingleSystemMetricsCollector};
+//! use kolbold_core::system_metrics::MemorySysMetricsCollectorSync;
+//! use kolbold_core::memory::memory_metrics_collector::{MemoryMeasurementData, SingleSystemMetricsCollector};
 //! use anyhow::Result;
 //!
 //! fn measure_memory() -> Result<MemoryMeasurementData> {
@@ -29,7 +33,11 @@
 //!     let initial_mem_usage = collector.refresh_initial_metrics()?;
 //!     
 //!     // Simulate a process to measure
-//!     // ...
+//!     let simulated_process = || {
+//!         let mut v = vec![0; 1_000_000];
+//!         v.iter_mut().for_each(|x| *x += 1);
+//!     };
+//!     simulated_process();
 //!
 //!     let avg_mem_usage = collector.refresh_final_metrics(initial_mem_usage)?;
 //!     Ok(MemoryMeasurementData::new(0, 0, 100, avg_mem_usage, None))
@@ -41,10 +49,15 @@
 //! }
 //! ```
 //!
-//! ## Notes
-//! - The module uses `sysinfo` for retrieving system-level metrics and wraps it for custom error handling using `MetricError`.
-//! - The `Default` implementation for `SingleSystemMetricsCollector`, `SystemMetricsCollectorSync`, and `SystemMetricsCollectorAsync` allows for straightforward initialization without needing to call `new()` directly.
-//! - The module's structures and methods are designed for use in benchmarking scenarios where precise memory usage tracking is required.
+//! ## Usage Notes
+//! - The module relies on `sysinfo` for retrieving system-level metrics and wraps it with custom error handling using `MetricError`.
+//! - The `Default` implementation for `SingleSystemMetricsCollector`, `SystemMetricsCollectorSync`, and `SystemMetricsCollectorAsync` simplifies initialization, avoiding the need to call `new()` explicitly.
+//! - The structs and traits in this module are ideal for benchmarking scenarios, offering precise memory usage tracking across both single-threaded and multi-threaded contexts.
+//!
+//! ## Test Suite
+//! This module includes a robust test suite that verifies the functionality of synchronous and asynchronous
+//! memory measurements in both single-threaded and multi-threaded scenarios. The tests cover initialization,
+//! memory tracking, and error handling to ensure consistent metric collection and accurate memory usage reports.
 
 use super::super::{
     error::{MemoryError, MetricError},

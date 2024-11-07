@@ -1,25 +1,27 @@
 //! # Error Handling Module
 //!
-//! This module provides custom error types and implementations used throughout the library for handling
-//! various errors that may occur during time and memory complexity measurements.
+//! This module defines custom error types for handling various failures and exceptions that may occur
+//! during time and memory complexity measurements within the library. By encapsulating errors in
+//! specific types, it provides clear and consistent error messages across the library's components.
 //!
 //! ## Overview
-//! - Defines comprehensive error types to standardize error handling across different components of the library.
-//! - Implements conversion from common error types to `MetricError` for seamless integration with other Rust libraries.
+//! - Defines structured error types for handling common issues in time and memory metrics collection.
+//! - Integrates with `anyhow::Result` and `thiserror::Error` to provide seamless error handling in user applications.
 //!
 //! ## Error Types
-//! - `MetricError`: The main error type that encapsulates different categories of errors, including those related to
-//!   system locks, async and sync task failures, and unexpected conditions.
-//! - `TimeError`: Specific errors related to time complexity measurements, such as missing CPU information or arithmetic overflow.
-//! - `MemoryError`: Specific errors related to memory complexity measurements, such as failures in memory collection.
+//! - `MetricError`: The primary error type that wraps other specific errors (e.g., `TimeError`, `MemoryError`) and
+//!   also includes general errors related to system locks and thread management.
+//! - `TimeError`: Specific errors encountered during time metrics collection, such as missing CPU information or arithmetic overflow.
+//! - `MemoryError`: Specific errors encountered during memory metrics collection, such as failure to collect metrics.
 //!
 //! ## Key Features
-//! - Implements the `thiserror::Error` trait for easy-to-read error descriptions.
-//! - Provides conversions from `anyhow::Error` and `tokio::task::JoinError` to `MetricError`.
+//! - Implements the `thiserror::Error` trait, which provides detailed and readable error descriptions for each error type.
+//! - Implements conversions from standard Rust error types (`anyhow::Error`, `tokio::task::JoinError`) into `MetricError`,
+//!   allowing for streamlined error propagation in asynchronous and synchronous contexts.
 //!
 //! ## Example Usage
 //! ```rust
-//! use kolbold::error::MetricError;
+//! use kolbold_core::error::MetricError;
 //! use anyhow::Result;
 //!
 //! fn perform_measurement() -> Result<(), MetricError> {
@@ -34,8 +36,16 @@
 //! ```
 //!
 //! ## Integration
-//! The module's error types are designed to integrate seamlessly with `anyhow::Result` for flexible error handling
-//! in applications that use the `anyhow` crate.
+//! - `MetricError` and its related error types integrate seamlessly with `anyhow::Result`, making it easy to handle errors in applications that already use the `anyhow` crate.
+//! - The module’s error types are compatible with async tasks managed by Tokio, handling errors from async task joins and other async operations through `JoinError` conversion.
+//!
+//! ## Detailed Error Types
+//! - `MetricError::LockError`: Used when a system lock fails, often due to issues with a `MutexGuard`.
+//! - `MetricError::AsyncJoinError`: Represents errors that occur when joining an asynchronous task fails, e.g., during concurrent operations with Tokio.
+//! - `MetricError::SyncJoinError`: Represents errors when joining synchronous threads fails.
+//! - `TimeError`: Specific to time metrics and includes errors for missing CPU information or arithmetic overflow.
+//! - `MemoryError`: Specific to memory metrics and includes errors for memory collection failures.
+//!
 
 use anyhow::Error as AnyhowError;
 use smol_str::{SmolStr, ToSmolStr};

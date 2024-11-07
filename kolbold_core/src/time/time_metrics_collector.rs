@@ -1,40 +1,41 @@
 //! # Time Measurement Module
 //!
 //! This module provides tools and implementations for collecting and measuring time-related metrics
-//! in both synchronous and asynchronous contexts. It includes support for single-threaded and multi-threaded
-//! execution, allowing comprehensive CPU usage tracking and time complexity analysis.
+//! in both synchronous and asynchronous contexts. It supports single-threaded and multi-threaded
+//! execution, enabling comprehensive CPU usage tracking and time complexity analysis.
 //!
 //! ## Overview
-//! - `TimeMeasurementData`: Represents collected data including start and end timestamps, elapsed time,
-//!   CPU usage, and optional thread-specific metrics.
+//! - `TimeMeasurementData`: Contains data on start and end timestamps, elapsed time, CPU usage, and optional
+//!   thread-specific metrics.
 //! - `SingleSystemMetricsCollector`, `SystemMetricsCollectorSync`, and `SystemMetricsCollectorAsync`:
-//!   Collectors used for gathering system-level metrics in different execution environments.
-//! - Traits such as `TimeSysMetricsCollectorSync` and `TimeSysMetricsCollectorAsync` for defining
-//!   synchronous and asynchronous operations related to time metrics collection.
+//!   Provide system-level time and CPU usage metrics in different execution contexts.
+//! - Traits such as `TimeSysMetricsCollectorSync` and `TimeSysMetricsCollectorAsync` define
+//!   synchronous and asynchronous operations for time metrics collection.
 //!
 //! ## Key Features
 //! - Measure time and CPU usage for single-threaded and multi-threaded code execution.
 //! - Supports both synchronous and asynchronous metric collection.
-//! - Collects detailed thread-specific metrics when running in multi-threaded mode.
-//! - `SystemMetricsCollectorSync` and `SystemMetricsCollectorAsync` now implement the `Default` trait, allowing for easy instantiation using `::default()`.
+//! - Collects detailed thread-specific metrics in multi-threaded mode for in-depth performance analysis.
+//! - `SystemMetricsCollectorSync` and `SystemMetricsCollectorAsync` implement `Default` for easy instantiation with `::default()`.
 //!
 //! ## Instantiation
-//! Collectors can be instantiated using the `new()` method or the `Default` trait:
+//! Collectors can be instantiated using either `new()` or the `Default` trait:
 //! ```rust
-//! use kolbold::memory::memory_metrics_collector::SystemMetricsCollectorSync;
-//! use kolbold::memory::memory_metrics_collector::SystemMetricsCollectorAsync;
+//! use kolbold_core::time::time_metrics_collector::SystemMetricsCollectorSync;
+//! use kolbold_core::time::time_metrics_collector::SystemMetricsCollectorAsync;
 //!
 //! let sync_collector = SystemMetricsCollectorSync::new();
 //! let async_collector = SystemMetricsCollectorAsync::default(); // Equivalent to `SystemMetricsCollectorAsync::new()`
 //! ```
 //!
 //! ## Example Usage
+//! Here's how to use `TimeMeasurement` for synchronous and asynchronous time complexity analysis:
 //! ```rust
-//! use kolbold::time::time_measurement::{TimeComplexity, TimeMeasurement};
+//! use kolbold_core::time::time_measurement::{TimeComplexity, TimeMeasurement};
 //! use anyhow::Result;
 //!
 //! fn example_sync_measurement() -> Result<()> {
-//!     let data = TimeMeasurement::measure_single_thread_sync(|| {
+//!     let data = TimeMeasurement::measure_single_thread_sync::<_, _, TimeMeasurement>(|| {
 //!         // Simulated computation
 //!         let mut v = vec![0; 1_000_000];
 //!         v.iter_mut().for_each(|x| *x += 1);
@@ -46,7 +47,7 @@
 //!
 //! #[tokio::main]
 //! async fn example_async_measurement() -> Result<()> {
-//!     let data = TimeMeasurement::measure_single_thread_async(|| {
+//!     let data = TimeMeasurement::measure_single_thread_async::<_, _, TimeMeasurement>(|| {
 //!         // Simulated asynchronous computation
 //!         let mut v = vec![0; 1_000_000];
 //!         v.iter_mut().for_each(|x| *x += 1);
@@ -58,13 +59,12 @@
 //! ```
 //!
 //! ## Usage Notes
-//! - The module uses `sysinfo` to collect CPU metrics, which may have specific configuration and dependency requirements.
-//! - Thread-specific metrics provide granular insight when using multi-threaded execution for performance analysis.
+//! - This module uses `sysinfo` to gather CPU metrics, which may have configuration requirements based on the environment.
+//! - Multi-threaded execution with thread-specific metrics helps identify bottlenecks by providing detailed CPU usage data.
 //!
 //! ## Test Suite
-//! This module includes a test suite that verifies the functionality of both synchronous and asynchronous
-//! measurements for single-threaded and multi-threaded code. The tests ensure that the metric collection
-//! is accurate and functions as expected in different scenarios.
+//! The module includes a test suite for synchronous and asynchronous measurements in both single-threaded and multi-threaded contexts.
+//! These tests ensure accurate and reliable time metrics collection across various scenarios.
 
 use super::super::{
     error::{MetricError, TimeError},
