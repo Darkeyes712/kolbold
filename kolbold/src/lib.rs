@@ -23,7 +23,7 @@
 //! ## Example Usage
 //!
 //! ```rust
-//! use kolbold::{TimeComplexity, MemoryComplexity, TimeMeasurement, MemoryMeasurement};
+//! use kolbold_core::{TimeComplexity, MemoryComplexity, TimeMeasurement, MemoryMeasurement};
 //! use anyhow::Result;
 //!
 //! // Measure time complexity of a single-threaded synchronous function
