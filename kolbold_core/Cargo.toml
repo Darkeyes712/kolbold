@@ -1,0 +1,47 @@
+[package]
+name = "kolbold_core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Logging
+tracing = { workspace = true }
+
+# SerDe
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
+
+# Sync
+rayon = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+async-trait = { workspace = true }
+tokio-tungstenite = { workspace = true }
+futures = { workspace = true }
+
+# Errors
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Authentication
+sha2 = { workspace = true }
+hex = { workspace = true }
+uuid = { workspace = true }
+ring = { workspace = true }
+
+# Utrils
+chrono = { workspace = true }
+smol_str = { workspace = true }
+rust_decimal = { workspace = true }
+rand = { workspace = true }
+rustc-hash = { workspace = true }
+
+# Testing
+tokio-test = { workspace = true }
+sysinfo = { workspace = true }
+num_cpus = { workspace = true }
+
+# Macros:
+kolbold_macros = { path = "../kolbold_macros" }

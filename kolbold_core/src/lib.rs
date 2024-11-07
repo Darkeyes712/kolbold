@@ -5,11 +5,13 @@
 //! their code in multi-threaded or single-threaded environments.
 //!
 //! ## Modules
+//! - `common_collector`: A common interface for both the `time` & `memory` modules, combining the functionality of both
 //! - `error`: Custom error handling types used across the library.
 //! - `memory`: Functions and traits for memory complexity measurement.
 //! - `system_metrics`: Structures and traits for collecting system-level metrics.
 //! - `thread_metrics`: Data structures for holding thread-specific metric data.
 //! - `time`: Functions and traits for time complexity measurement.
+//! - `time_handle`: An abstraction for the time elapsed logic used across the library.
 //! - `utils`: Utility functions used throughout the library.
 //!
 //! ## Re-exports
@@ -19,11 +21,11 @@
 //!
 //! ## Example Usage
 //! ```rust
-//! use kolbold::{TimeComplexity, MemoryComplexity, TimeMeasurement, MemoryMeasurement};
+//! use kolbold_core::{TimeComplexity, MemoryComplexity, TimeMeasurement, MemoryMeasurement};
 //!
 //!
 //! // Measure time complexity of a single-threaded synchronous process
-//! TimeMeasurement::measure_single_thread_sync(|| {
+//! TimeMeasurement::measure_single_thread_sync::<_, _, TimeMeasurement>(|| {
 //!     // Your process to benchmark
 //! })
 //! .map(|result| println!("Time measurement successful: {:?}", result))
@@ -31,7 +33,7 @@
 //!
 //! // Measure memory complexity of an async process
 //! # async {
-//! MemoryMeasurement::measure_single_thread_async(|| {
+//! MemoryMeasurement::measure_single_thread_async::<_, _, MemoryMeasurement>(|| {
 //!     // Your async process to benchmark
 //! })
 //! .await
@@ -44,11 +46,13 @@
 //! - Import the `TimeMeasurement` or `MemoryMeasurement` structs for access to measurement methods.
 //! - Use the traits `TimeComplexity` and `MemoryComplexity` to implement custom measurement strategies if needed.
 
+pub mod common_collector;
 pub mod error;
 pub mod memory;
 pub mod system_metrics;
 pub mod thread_metrics;
 pub mod time;
+pub mod time_handle;
 pub mod utils;
 
 // Re-export primary traits and structs for convenience

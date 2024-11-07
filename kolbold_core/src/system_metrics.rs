@@ -1,28 +1,33 @@
 //! # System Metrics Collection Module
 //!
 //! This module provides traits for collecting and locking system metrics related to time and memory usage.
-//! The traits are implemented for both synchronous and asynchronous contexts, allowing for flexible usage
-//! in different performance measurement scenarios.
+//! The traits are designed for use in both synchronous and asynchronous contexts, supporting flexible usage
+//! in performance measurement and resource monitoring scenarios within concurrent applications.
 //!
 //! ## Overview
-//! - The module defines traits for gathering CPU and memory usage metrics and locking mechanisms to ensure
-//!   thread-safe access to these metrics.
-//! - Traits include methods for refreshing metrics and retrieving usage data, with error handling built-in
-//!   through the `MetricError` type.
+//! - Defines core traits for gathering and managing CPU and memory usage metrics in Rust applications.
+//! - Provides locking traits to ensure safe, thread-safe access to shared metrics in both sync and async contexts.
+//! - Uses `MetricError` for error handling, ensuring robust error propagation in metric collection operations.
 //!
 //! ## Traits
-//! - `TimeSysMetricsCollectorSync`: For collecting CPU metrics synchronously.
-//! - `TimeSysMetricsCollectorAsync`: For collecting CPU metrics asynchronously.
-//! - `MemorySysMetricsCollectorSync`: For collecting memory metrics synchronously.
-//! - `MemorySysMetricsCollectorAsync`: For collecting memory metrics asynchronously.
-//! - `TimeCollectorLock`: Provides a locking mechanism for synchronous time metrics collectors.
-//! - `TimeCollectorLockAsync`: Provides a locking mechanism for asynchronous time metrics collectors.
-//! - `MemoryCollectorLock`: Provides a locking mechanism for synchronous memory metrics collectors.
-//! - `MemoryCollectorLockAsync`: Provides a locking mechanism for asynchronous memory metrics collectors.
+//! ### Synchronous Metric Collection
+//! - **`TimeSysMetricsCollectorSync`**: Defines methods for collecting CPU metrics in synchronous contexts.
+//! - **`MemorySysMetricsCollectorSync`**: Defines methods for collecting memory metrics in synchronous contexts.
+//!
+//! ### Asynchronous Metric Collection
+//! - **`TimeSysMetricsCollectorAsync`**: Defines methods for collecting CPU metrics in asynchronous contexts.
+//! - **`MemorySysMetricsCollectorAsync`**: Defines methods for collecting memory metrics in asynchronous contexts.
+//!
+//! ### Locking Mechanisms
+//! - **`TimeCollectorLock`**: Provides a locking mechanism for synchronously accessing time metrics collectors.
+//! - **`TimeCollectorLockAsync`**: Provides a locking mechanism for asynchronously accessing time metrics collectors.
+//! - **`MemoryCollectorLock`**: Provides a locking mechanism for synchronously accessing memory metrics collectors.
+//! - **`MemoryCollectorLockAsync`**: Provides a locking mechanism for asynchronously accessing memory metrics collectors.
 //!
 //! ## Example Usage
 //! ```rust
-//! use kolbold::system_metrics::TimeSysMetricsCollectorSync;
+//! use kolbold_core::system_metrics::TimeSysMetricsCollectorSync;
+//! use kolbold_core::error::MetricError;
 //! use anyhow::Result;
 //!
 //! struct ExampleCollector;
@@ -32,7 +37,7 @@
 //!         // Implementation for refreshing CPU metrics
 //!     }
 //!
-//!     fn cpu_usage(&self) -> Result<f32, kolbold::error::MetricError> {
+//!     fn cpu_usage(&self) -> Result<f32, MetricError> {
 //!         // Implementation for retrieving CPU usage
 //!         Ok(42.0) // Example CPU usage
 //!     }
@@ -47,15 +52,18 @@
 //! ```
 //!
 //! ## Error Handling
-//! - All functions that return a `Result` type handle errors through `MetricError`, making it easy to handle
-//!   failures during metric collection or locking operations.
+//! - The `MetricError` type is used for consistent error handling across all metrics collection functions that return a `Result`.
+//! - `MetricError` encapsulates various error cases, such as lock acquisition failures and metric retrieval errors, making it easy to handle failures gracefully.
+//!
+//! ## Integration Notes
+//! - This module’s traits are intended for use in performance monitoring and resource management in both synchronous and asynchronous Rust applications.
+//! - The async versions of the traits (`TimeSysMetricsCollectorAsync` and `MemorySysMetricsCollectorAsync`) are designed to work with asynchronous runtimes like Tokio, making them suitable for high-performance, non-blocking applications.
 
 use super::error::MetricError;
 use anyhow::Result;
+use async_trait::async_trait;
 use std::sync::MutexGuard;
 use tokio::sync::MutexGuard as TokioMutexGuard;
-
-use async_trait::async_trait;
 
 pub trait TimeSysMetricsCollectorSync {
     /// Refreshes the current CPU metrics.
@@ -94,7 +102,6 @@ pub trait MemorySysMetricsCollectorSync {
 }
 
 #[async_trait]
-#[async_trait]
 pub trait MemorySysMetricsCollectorAsync {
     /// Asynchronously refreshes the current memory metrics.
     async fn refresh_memory(&mut self);
@@ -118,7 +125,7 @@ pub trait TimeCollectorLock {
     fn lock_collector(&self) -> Result<MutexGuard<Self::Collector>, MetricError>;
 }
 
-#[async_trait::async_trait]
+#[async_trait]
 pub trait TimeCollectorLockAsync {
     /// The type of the collector being locked.
     type Collector: TimeSysMetricsCollectorAsync;
@@ -143,7 +150,7 @@ pub trait MemoryCollectorLock {
     fn lock_collector(&self) -> Result<MutexGuard<Self::Collector>, MetricError>;
 }
 
-#[async_trait::async_trait]
+#[async_trait]
 pub trait MemoryCollectorLockAsync {
     /// The type of the collector being locked.
     type Collector: MemorySysMetricsCollectorAsync;

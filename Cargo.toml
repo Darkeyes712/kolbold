@@ -1,14 +1,12 @@
-[package]
-name = "kolbold"
-version = "1.0.6"
-edition = "2021"
-authors = ["Nikola Kolev <nikolakolev712@gmail.com>"]
-description = "A Rust library for memory and time metrics collection."
-license = "Apache-2.0"
-repository = "https://github.com/Darkeyes712/kolbold"
-documentation = "https://docs.rs/kolbold"
+[workspace]
+members = [
+    "kolbold_core",
+    "kolbold_macros",
+    "kolbold",
+]
+resolver = "2"
 
-[dependencies]
+[workspace.dependencies]
 # Logging
 tracing = { version = "0.1.40" }
 
@@ -36,10 +34,10 @@ hex = "0.4.3"
 uuid = { version = "1.11.0", features = ["v4","fast-rng","macro-diagnostics"] }
 ring = "0.17.8"
 
-# Utrils
+# Utils
 chrono = { version = "0.4.31", features = ["serde"] }
 smol_str = { version = "0.2", features = ["serde"] }
-rust_decimal = {version = "1.36.0", features = ["serde"], default-features = false}
+rust_decimal = { version = "1.36.0", features = ["serde"], default-features = false }
 rand = "0.8.5"
 rustc-hash = "2.0.0"
 

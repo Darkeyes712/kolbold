@@ -26,7 +26,7 @@ To use `kolbold`, add the following line to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-kolbold = "1.0.6"
+kolbold = "1.1.0"
 ```
 
 Then, include it in your code:
@@ -47,7 +47,7 @@ use kolbold::time::time_measurement::{TimeComplexity, TimeMeasurement};
 use anyhow::Result;
 
 fn main() -> Result<()> {
-    let result = TimeMeasurement::measure_single_thread_sync(|| {
+    let result = TimeMeasurement::measure_single_thread_sync::<_, _, TimeMeasurement>(|| {
         // Your code to be measured
         let sum: u64 = (0..1_000_000).sum();
         println!("Sum: {}", sum);
@@ -67,7 +67,7 @@ use tokio::main;
 
 #[main]
 async fn async_main() -> Result<()> {
-    let result = TimeMeasurement::measure_single_thread_async(|| {
+    let result = TimeMeasurement::measure_single_thread_async::<_, _, TimeMeasurement>(|| {
         // Your async code to be measured
         let product: u64 = (1..100).product();
         println!("Product: {}", product);
@@ -87,7 +87,7 @@ use kolbold::memory::memory_measurement::{MemoryComplexity, MemoryMeasurement};
 use anyhow::Result;
 
 fn main() -> Result<()> {
-    let result = MemoryMeasurement::measure_single_thread_sync(|| {
+    let result = MemoryMeasurement::measure_single_thread_sync::<_, _, MemoryMeasurement>(|| {
         // Code to measure memory usage
         let vec: Vec<u64> = (0..1_000_000).collect();
         println!("Vector length: {}", vec.len());

@@ -1,18 +1,19 @@
 //! # Thread Metrics Module
 //!
-//! This module provides structures for collecting and displaying metrics at the thread level,
-//! including CPU and memory usage, along with execution time. These metrics can be used to
-//! analyze the performance of multi-threaded applications by capturing per-thread data.
+//! This module provides structures for collecting and displaying thread-level metrics,
+//! including CPU and memory usage along with execution time. These metrics are useful
+//! for analyzing the performance of multi-threaded applications by capturing data
+//! for each individual thread.
 //!
 //! ## Overview
-//! - `TimeThreadMetrics`: Represents time-based metrics for individual threads, including CPU usage
+//! - `TimeThreadMetrics`: Represents time-based metrics for a specific thread, capturing CPU usage
 //!   and execution time.
-//! - `MemoryThreadMetrics`: Represents memory-based metrics for individual threads, including memory
+//! - `MemoryThreadMetrics`: Represents memory-based metrics for a specific thread, capturing memory
 //!   usage and execution time.
 //!
 //! ## Example Usage
 //! ```rust
-//! use kolbold::thread_metrics::{TimeThreadMetrics, MemoryThreadMetrics};
+//! use kolbold_core::thread_metrics::{TimeThreadMetrics, MemoryThreadMetrics};
 //! use smol_str::SmolStr;
 //!
 //! // Example for creating a TimeThreadMetrics instance
@@ -33,12 +34,13 @@
 //! ```
 //!
 //! ## Structs
-//! - `TimeThreadMetrics`: Captures metrics for CPU usage and execution time at the thread level.
-//! - `MemoryThreadMetrics`: Captures metrics for memory usage and execution time at the thread level.
+//! - `TimeThreadMetrics`: Captures metrics for CPU usage and execution time specific to a thread.
+//! - `MemoryThreadMetrics`: Captures metrics for memory usage and execution time specific to a thread.
 //!
 //! ## Usage Notes
-//! These structs are designed to be created and used within systems that track and analyze thread-level
-//! performance data. They can be helpful for benchmarking and performance tuning of multi-threaded applications.
+//! These structs are designed to facilitate thread-level performance tracking, enabling
+//! benchmarking and tuning in multi-threaded environments. They are especially useful
+//! for applications requiring granular insights into resource consumption per thread.
 
 use smol_str::SmolStr;
 use std::fmt;
