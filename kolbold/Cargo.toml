@@ -9,5 +9,5 @@ repository = "https://github.com/Darkeyes712/kolbold"
 documentation = "https://docs.rs/kolbold"
 
 [dependencies]
-kolbold_core = { path = "../kolbold_core" }
-kolbold_macros = { path = "../kolbold_macros" }
+kolbold_core = "0.1.0"  
+kolbold_macros = "0.1.0"

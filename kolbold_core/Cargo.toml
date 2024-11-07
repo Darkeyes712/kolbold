@@ -44,4 +44,4 @@ sysinfo = { workspace = true }
 num_cpus = { workspace = true }
 
 # Macros:
-kolbold_macros = { path = "../kolbold_macros" }
+kolbold_macros = "0.1.0"
