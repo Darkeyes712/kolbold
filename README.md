@@ -26,7 +26,7 @@ To use `kolbold`, add the following line to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-kolbold = "1.1.1"
+kolbold = "1.1.2"
 ```
 
 Then, include it in your code:
