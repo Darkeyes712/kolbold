@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.2] - 13-11-2024
+### Fixed
+- Adjust changelog to reflect latest version
+
+## [1.2.1] - 13-11-2024
+### Fixed
+- Fixed breaking doc tests
+
 ## [1.2.0] - 13-11-2024
 ### Added
 - Support for measuring `swap` usage in single-threaded and multi-threaded contexts.
