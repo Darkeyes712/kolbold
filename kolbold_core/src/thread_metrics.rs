@@ -28,7 +28,7 @@
 //! let memory_metrics = MemoryThreadMetrics::new(
 //!     SmolStr::new("thread-1"),
 //!     204800, // Memory usage in bytes
-//!     100520 // Swap usage in bytes
+//!     100520, // Swap usage in bytes
 //!     1500,   // Execution time in milliseconds
 //! );
 //! println!("{}", memory_metrics); // Displays: "Thread ID: thread-1 | Memory usage: 200 KB | Execution Time: 1500 ms"

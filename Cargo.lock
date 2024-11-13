@@ -521,46 +521,14 @@ dependencies = [
 
 [[package]]
 name = "kolbold"
-version = "1.1.2"
+version = "1.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
  "chrono",
  "futures",
  "hex",
- "kolbold_core 0.1.0",
- "kolbold_macros 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "num_cpus",
- "rand",
- "rayon",
- "ring",
- "rust_decimal",
- "rustc-hash",
- "serde",
- "serde_json",
- "serde_with",
- "sha2",
- "smol_str",
- "sysinfo",
- "thiserror",
- "tokio",
- "tokio-test",
- "tokio-tungstenite",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "kolbold_core"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8dda1e2d8579661f72c030fddb587bb1cf133654a47cf8a2243c6b861ac7da58"
-dependencies = [
- "anyhow",
- "async-trait",
- "chrono",
- "futures",
- "hex",
+ "kolbold_core 0.2.0",
  "kolbold_macros 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "num_cpus",
  "rand",
@@ -585,6 +553,38 @@ dependencies = [
 [[package]]
 name = "kolbold_core"
 version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9831ad516dd6d333488cd62d798e0cd3777955ca09f7a4233e15575cc828c52e"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "futures",
+ "hex",
+ "kolbold_macros 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num_cpus",
+ "rand",
+ "rayon",
+ "ring",
+ "rust_decimal",
+ "rustc-hash",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "sha2",
+ "smol_str",
+ "sysinfo",
+ "thiserror",
+ "tokio",
+ "tokio-test",
+ "tokio-tungstenite",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "kolbold_core"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "async-trait",
