@@ -99,6 +99,13 @@ pub trait MemorySysMetricsCollectorSync {
     /// - `Ok(u64)` representing memory usage in bytes.
     /// - `Err(MetricError)` if the memory usage cannot be retrieved.
     fn memory_usage(&self) -> Result<u64, MetricError>;
+
+    /// Retrieves the current swap usage in bytes.
+    ///
+    /// # Returns
+    /// - `Ok(u64)` representing swap usage in bytes.
+    /// - `Err(MetricError)` if the swap usage cannot be retrieved.
+    fn swap_usage(&self) -> Result<u64, MetricError>;
 }
 
 #[async_trait]
@@ -111,6 +118,12 @@ pub trait MemorySysMetricsCollectorAsync {
     /// # Returns
     /// - A `u64` representing memory usage in bytes.
     async fn memory_usage(&self) -> u64;
+
+    /// Asynchronously retrieves the current swap usage in bytes.
+    ///
+    /// # Returns
+    /// - A `u64` representing swap usage in bytes.
+    async fn swap_usage(&self) -> u64;
 }
 
 pub trait TimeCollectorLock {

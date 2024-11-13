@@ -528,7 +528,7 @@ dependencies = [
  "chrono",
  "futures",
  "hex",
- "kolbold_core 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "kolbold_core 0.1.0",
  "kolbold_macros 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "num_cpus",
  "rand",
@@ -553,6 +553,8 @@ dependencies = [
 [[package]]
 name = "kolbold_core"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8dda1e2d8579661f72c030fddb587bb1cf133654a47cf8a2243c6b861ac7da58"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -582,9 +584,7 @@ dependencies = [
 
 [[package]]
 name = "kolbold_core"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8dda1e2d8579661f72c030fddb587bb1cf133654a47cf8a2243c6b861ac7da58"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "async-trait",

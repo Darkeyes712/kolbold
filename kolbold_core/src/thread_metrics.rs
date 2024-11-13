@@ -28,6 +28,7 @@
 //! let memory_metrics = MemoryThreadMetrics::new(
 //!     SmolStr::new("thread-1"),
 //!     204800, // Memory usage in bytes
+//!     100520 // Swap usage in bytes
 //!     1500,   // Execution time in milliseconds
 //! );
 //! println!("{}", memory_metrics); // Displays: "Thread ID: thread-1 | Memory usage: 200 KB | Execution Time: 1500 ms"
@@ -90,17 +91,19 @@ pub struct MemoryThreadMetrics {
     thread_id: SmolStr,
     /// Memory usage in bytes during the measurement period.
     memory_usage: u64,
+    /// Swap usage in bytes during measurement period.
+    swap_usage: u64,
     /// Total execution time in milliseconds for the thread.
     execution_time: u64,
 }
 
 impl fmt::Display for MemoryThreadMetrics {
-    /// Formats the `MemoryThreadMetrics` for display, showing thread ID, memory usage, and execution time.
+    /// Formats the `MemoryThreadMetrics` for display, showing thread ID, memory usage, swap usage and execution time.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "Thread ID: {} | Memory usage: {} KB | Execution Time: {} ms",
-            self.thread_id, self.memory_usage, self.execution_time,
+            "Thread ID: {} | Memory usage: {} KB | Swap usage: {} KB | Execution Time: {} ms",
+            self.thread_id, self.memory_usage, self.swap_usage, self.execution_time,
         )
     }
 }
@@ -111,14 +114,21 @@ impl MemoryThreadMetrics {
     /// # Parameters
     /// - `thread_id`: Unique identifier for the thread.
     /// - `memory_usage`: Memory usage in bytes during the measurement period.
+    /// - `spaw_usage`: Usage of swap memory in bytes during measurement period.
     /// - `execution_time`: Total execution time in milliseconds for the thread.
     ///
     /// # Returns
     /// A new `MemoryThreadMetrics` instance.
-    pub fn new(thread_id: SmolStr, memory_usage: u64, execution_time: u64) -> Self {
+    pub fn new(
+        thread_id: SmolStr,
+        memory_usage: u64,
+        swap_usage: u64,
+        execution_time: u64,
+    ) -> Self {
         Self {
             thread_id,
             memory_usage,
+            swap_usage,
             execution_time,
         }
     }

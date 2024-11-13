@@ -1,12 +1,13 @@
 //! # Memory Metrics Collection Module
 //!
-//! This module provides structures and functions for measuring and collecting memory metrics in both
-//! single-threaded and multi-threaded contexts, synchronously and asynchronously. It is useful for
-//! benchmarking and analyzing memory usage in complex, concurrent Rust applications.
+//! This module provides structures and functions for measuring and collecting memory metrics,
+//! including both RAM and swap memory usage, in single-threaded and multi-threaded contexts. It
+//! supports synchronous and asynchronous operations, making it ideal for performance benchmarking
+//! in complex, concurrent Rust applications.
 //!
 //! ## Overview
 //! - `MemoryMeasurementData`: Represents data collected during a memory measurement session, including
-//!   start and end timestamps, elapsed time, total memory usage, and optional thread-specific metrics.
+//!   start and end timestamps, elapsed time, total memory usage, swap usage, and optional thread-specific metrics.
 //! - `SingleSystemMetricsCollector`: Collects system-level memory metrics synchronously in a single-threaded context.
 //! - `SystemMetricsCollectorSync`: Manages memory metrics collection across multiple threads synchronously.
 //! - `SystemMetricsCollectorAsync`: Handles memory metrics collection asynchronously in a multi-threaded environment.
@@ -17,11 +18,12 @@
 //! - `MemoryCollectorLock` and `MemoryCollectorLockAsync`: Traits for safely locking collectors in synchronous and asynchronous environments.
 //!
 //! ## Key Features
+//! - Collects both memory (RAM) and swap usage to give a full picture of system memory utilization.
+//! - Supports multi-threaded collection with detailed thread-specific metrics, enabling in-depth analysis of memory usage across concurrent threads.
 //! - `SingleSystemMetricsCollector`, `SystemMetricsCollectorSync`, and `SystemMetricsCollectorAsync` implement the `Default` trait for convenient instantiation using `::default()`.
-//! - Multi-threaded collection enables detailed thread-specific metrics, facilitating in-depth analysis of memory usage across concurrent threads.
 //!
 //! ## Example Usage
-//! Here’s how to use `SingleSystemMetricsCollector` for a synchronous memory measurement, demonstrating `Default` for initialization:
+//! The following example demonstrates using `SingleSystemMetricsCollector` to measure memory and swap usage synchronously in a single-threaded context:
 //!
 //! ```rust
 //! use kolbold_core::system_metrics::MemorySysMetricsCollectorSync;
@@ -30,7 +32,7 @@
 //!
 //! fn measure_memory() -> Result<MemoryMeasurementData> {
 //!     let mut collector = SingleSystemMetricsCollector::default(); // Using Default trait
-//!     let initial_mem_usage = collector.refresh_initial_metrics()?;
+//!     let (initial_mem_usage, initial_swap_usage) = collector.refresh_initial_metrics()?;
 //!     
 //!     // Simulate a process to measure
 //!     let simulated_process = || {
@@ -39,8 +41,8 @@
 //!     };
 //!     simulated_process();
 //!
-//!     let avg_mem_usage = collector.refresh_final_metrics(initial_mem_usage)?;
-//!     Ok(MemoryMeasurementData::new(0, 0, 100, avg_mem_usage, None))
+//!     let (avg_mem_usage, avg_swap_usage) = collector.refresh_final_metrics((initial_mem_usage, initial_swap_usage))?;
+//!     Ok(MemoryMeasurementData::new(0, 0, 100, avg_mem_usage, avg_swap_usage, None))
 //! }
 //!
 //! match measure_memory() {
@@ -50,14 +52,12 @@
 //! ```
 //!
 //! ## Usage Notes
-//! - The module relies on `sysinfo` for retrieving system-level metrics and wraps it with custom error handling using `MetricError`.
-//! - The `Default` implementation for `SingleSystemMetricsCollector`, `SystemMetricsCollectorSync`, and `SystemMetricsCollectorAsync` simplifies initialization, avoiding the need to call `new()` explicitly.
-//! - The structs and traits in this module are ideal for benchmarking scenarios, offering precise memory usage tracking across both single-threaded and multi-threaded contexts.
+//! - This module relies on `sysinfo` to retrieve system-level memory and swap metrics, which it wraps with custom error handling using `MetricError`.
+//! - `SingleSystemMetricsCollector`, `SystemMetricsCollectorSync`, and `SystemMetricsCollectorAsync` are designed for easy instantiation with the `Default` trait, which removes the need to call `new()` explicitly.
+//! - The data structures and traits in this module are designed for benchmarking and performance analysis, providing precise tracking of both RAM and swap usage across single-threaded and multi-threaded contexts.
 //!
 //! ## Test Suite
-//! This module includes a robust test suite that verifies the functionality of synchronous and asynchronous
-//! memory measurements in both single-threaded and multi-threaded scenarios. The tests cover initialization,
-//! memory tracking, and error handling to ensure consistent metric collection and accurate memory usage reports.
+//! The module includes a comprehensive test suite that validates the functionality of both synchronous and asynchronous memory measurements in single-threaded and multi-threaded environments. The tests cover initialization, memory and swap tracking, and error handling to ensure consistent metric collection and reliable reporting.
 
 use super::super::{
     error::{MemoryError, MetricError},
@@ -91,8 +91,10 @@ pub struct MemoryMeasurementData {
     end_time: u64,
     /// Duration in milliseconds between the start and end times, indicating the total time taken for the measurement.
     elapsed_time: u64,
-    /// Total memory usage in bytes during the measurement period.
+    /// Memory usage in bytes during the measurement period.
     memory_usage: u64,
+    /// Swap memory usage in bytes during the measurement period.
+    swap_usage: u64,
     /// Optional thread-specific metrics, available if the measurement is conducted in a multi-threaded context.
     thread_metrics: Option<Vec<MemoryThreadMetrics>>,
 }
@@ -101,8 +103,8 @@ impl fmt::Display for MemoryMeasurementData {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "Start time: {} | End time: {} | Elapsed time: {} | Memory usage: {} | Thread Metrics: {:?}",
-            self.start_time, self.end_time, self.elapsed_time, self.memory_usage, self.thread_metrics
+            "Start time: {} | End time: {} | Elapsed time: {} | Memory usage: {} | Swap usage: {} | Thread Metrics: {:?}",
+            self.start_time, self.end_time, self.elapsed_time, self.memory_usage, self.swap_usage, self.thread_metrics
         )?;
 
         // If thread metrics are available, print each thread's details.
@@ -125,6 +127,7 @@ impl MemoryMeasurementData {
     /// - `end_time`: The end timestamp in milliseconds.
     /// - `elapsed_time`: The total duration of the measurement in milliseconds.
     /// - `memory_usage`: The total memory usage during the measurement period in bytes.
+    /// - `swap_usage`: Swap memory usage in bytes during the measurement period.
     /// - `thread_metrics`: Optional thread-specific metrics.
     ///
     /// # Returns
@@ -134,6 +137,7 @@ impl MemoryMeasurementData {
         end_time: u64,
         elapsed_time: u64,
         memory_usage: u64,
+        swap_usage: u64,
         thread_metrics: Option<Vec<MemoryThreadMetrics>>,
     ) -> Self {
         Self {
@@ -141,6 +145,7 @@ impl MemoryMeasurementData {
             end_time,
             elapsed_time,
             memory_usage,
+            swap_usage,
             thread_metrics,
         }
     }
@@ -164,16 +169,28 @@ impl MemorySysMetricsCollectorSync for SingleSystemMetricsCollector {
         self.system.refresh_memory();
     }
 
-    /// Retrieves the total memory usage in bytes.
+    /// Retrieves the memory usage in bytes.
     ///
     /// # Returns
-    /// - `Ok(u64)`: The total memory usage in bytes.
+    /// - `Ok(u64)`: The memory usage in bytes.
     /// - `Err(MetricError)`: If memory usage cannot be determined.
     fn memory_usage(&self) -> Result<u64, MetricError> {
         self.system
             .total_memory()
             .checked_sub(self.system.available_memory())
-            .ok_or_else(|| MetricError::MemoryError(MemoryError::CollectionError))
+            .ok_or_else(|| MetricError::MemoryError(MemoryError::MetricCollectionError))
+    }
+
+    /// Retrieves the swap usage in bytes.
+    ///
+    /// # Returns
+    /// - `Ok(u64)`: The total swap usage in bytes.
+    /// - `Err(MetricError)`: If swap usage cannot be determined.
+    fn swap_usage(&self) -> Result<u64, MetricError> {
+        self.system
+            .total_swap()
+            .checked_sub(self.system.free_swap())
+            .ok_or_else(|| MetricError::MemoryError(MemoryError::MetricCollectionError))
     }
 }
 
@@ -195,30 +212,37 @@ impl SingleSystemMetricsCollector {
     /// Refreshes the initial memory metrics.
     ///
     /// # Returns
-    /// - `Ok(u64)`: The initial memory usage in bytes.
+    /// - `Ok((u64, u64))`: The initial memory and swap usage in bytes.
     /// - `Err(MetricError)`: If an error occurs during metric collection.
-    pub fn refresh_initial_metrics(&mut self) -> Result<u64, MetricError> {
+    pub fn refresh_initial_metrics(&mut self) -> Result<(u64, u64), MetricError> {
         self.refresh_memory();
 
         let mem_usage = self.memory_usage()?;
-        Ok(mem_usage)
+        let swap_usage = self.swap_usage()?;
+        Ok((mem_usage, swap_usage))
     }
 
     /// Refreshes the final memory metrics and calculates the average memory usage.
     ///
     /// # Parameters
-    /// - `init_mem_usage`: The initial memory usage in bytes.
+    /// - `init_usage`: The initial memory and swap usage in bytes.
     ///
     /// # Returns
-    /// - `Ok(u64)`: The average memory usage in bytes.
+    /// - `Ok((u64, u64))`: The average memory and swap usage in bytes.
     /// - `Err(MetricError)`: If an error occurs during metric collection.
-    pub fn refresh_final_metrics(&mut self, init_mem_usage: u64) -> Result<u64, MetricError> {
+    pub fn refresh_final_metrics(
+        &mut self,
+        init_usage: (u64, u64),
+    ) -> Result<(u64, u64), MetricError> {
         self.refresh_memory();
 
         let fin_mem_usage = self.memory_usage()?;
-        let avg_mem_usage = (init_mem_usage + fin_mem_usage) / 2;
+        let avg_mem_usage = (init_usage.0 + fin_mem_usage) / 2;
 
-        Ok(avg_mem_usage)
+        let fin_swap_usage = self.swap_usage()?;
+        let avg_swap_usage = (init_usage.1 + fin_swap_usage) / 2;
+
+        Ok((avg_mem_usage, avg_swap_usage))
     }
 }
 
@@ -242,10 +266,10 @@ impl MemorySysMetricsCollectorSync for SystemMetricsCollectorSync {
         }
     }
 
-    /// Retrieves the total memory usage in bytes.
+    /// Retrieves the memory usage in bytes.
     ///
     /// # Returns
-    /// - `Ok(u64)`: The total memory usage in bytes.
+    /// - `Ok(u64)`: The memory usage in bytes.
     /// - `Err(MetricError)`: If the system lock fails or memory usage cannot be determined.
     fn memory_usage(&self) -> Result<u64, MetricError> {
         let system = self.system.lock().map_err(|_| {
@@ -256,6 +280,22 @@ impl MemorySysMetricsCollectorSync for SystemMetricsCollectorSync {
         })?;
 
         Ok(system.total_memory() - system.available_memory())
+    }
+
+    /// Retrieves the swap usage in bytes.
+    ///
+    /// # Returns
+    /// - `Ok(u64)`: The swap usage in bytes.
+    /// - `Err(MetricError)`: If the system lock fails or memory usage cannot be determined.
+    fn swap_usage(&self) -> Result<u64, MetricError> {
+        let system = self.system.lock().map_err(|_| {
+            MetricError::LockError(
+                anyhow::anyhow!("Failed to lock system mutex while getting memory usage")
+                    .to_smolstr(),
+            )
+        })?;
+
+        Ok(system.total_swap() - system.free_swap())
     }
 }
 
@@ -357,6 +397,7 @@ impl SystemMetricsCollectorSync {
         let thread_id = SmolStr::new(format!("{:?}", thread::current().id()));
         let start_time = SyncInstant::now();
         let init_mem_usage = collector.memory_usage()?;
+        let init_swap_usage = collector.swap_usage()?;
 
         let _ = process.lock().map_err(|_| {
             MetricError::LockError(
@@ -368,10 +409,13 @@ impl SystemMetricsCollectorSync {
         collector.refresh_memory();
         let fin_mem_usage = collector.memory_usage()?;
         let avg_mem_usage = (init_mem_usage + fin_mem_usage) / 2;
+        let fin_swap_usage = collector.swap_usage()?;
+        let avg_swap_usage = (init_swap_usage + fin_swap_usage) / 2;
 
         Ok(MemoryThreadMetrics::new(
             thread_id,
             avg_mem_usage,
+            avg_swap_usage,
             elapsed_time,
         ))
     }
@@ -398,14 +442,24 @@ impl MemorySysMetricsCollectorAsync for SystemMetricsCollectorAsync {
         system.refresh_memory();
     }
 
-    /// Asynchronously retrieves the total memory usage in bytes.
+    /// Asynchronously retrieves the memory usage in bytes.
     ///
     /// # Returns
-    /// A `u64` representing the total memory usage in bytes.
+    /// A `u64` representing the memory usage in bytes.
     async fn memory_usage(&self) -> u64 {
         let system = self.system.lock().await;
 
         system.total_memory() - system.available_memory()
+    }
+
+    /// Asynchronously retrieves the swap usage in bytes.
+    ///
+    /// # Returns
+    /// A `u64` representing the swap usage in bytes.
+    async fn swap_usage(&self) -> u64 {
+        let system = self.system.lock().await;
+
+        system.total_swap() - system.free_swap()
     }
 }
 
@@ -504,6 +558,7 @@ impl SystemMetricsCollectorAsync {
         let thread_id = Uuid::new_v4().to_smolstr();
         let start_time = AsyncInstant::now();
         let init_mem_usage = collector.memory_usage().await;
+        let init_swap_usage = collector.swap_usage().await;
 
         let _ = process.lock().await;
 
@@ -513,9 +568,13 @@ impl SystemMetricsCollectorAsync {
         let fin_mem_usage = collector.memory_usage().await;
         let avg_mem_usage = (init_mem_usage + fin_mem_usage) / 2;
 
+        let fin_swap_usage = collector.swap_usage().await;
+        let avg_swap_usage = (init_swap_usage + fin_swap_usage) / 2;
+
         Ok(MemoryThreadMetrics::new(
             thread_id,
             avg_mem_usage,
+            avg_swap_usage,
             elapsed_time,
         ))
     }
