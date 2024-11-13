@@ -1,6 +1,6 @@
 [package]
 name = "kolbold"
-version = "1.1.2"
+version = "1.2.0"
 edition = "2021"
 authors = ["Nikola Kolev <nikolakolev712@gmail.com>"]
 description = "A Rust library for memory and time metrics collection."
@@ -10,7 +10,7 @@ documentation = "https://docs.rs/kolbold"
 
 [dependencies]
 # Crates
-kolbold_core = "0.1.0"  
+kolbold_core = "0.2.0"  
 kolbold_macros = "0.1.0"
 
 # Logging

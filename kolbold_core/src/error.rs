@@ -108,5 +108,5 @@ pub enum TimeError {
 pub enum MemoryError {
     /// Error indicating failure in collecting memory metrics.
     #[error("Memory collection failed")]
-    CollectionError,
+    MetricCollectionError,
 }

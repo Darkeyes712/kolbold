@@ -51,7 +51,7 @@
 //!
 //! ## Usage Notes
 //! - This module relies on the `sysinfo` crate to collect system-level memory metrics.
-//! - The `MemoryMeasurementData` struct provides a structured representation of collected data, including memory usage, elapsed time, and optional thread-specific metrics, making it easier to analyze complex memory behaviors.
+//! - The `MemoryMeasurementData` struct provides a structured representation of collected data, including memory, cpu, swap usage, elapsed time, and optional thread-specific metrics, making it easier to analyze complex memory behaviors.
 //! - Structs that implement `MemoryComplexity` should derive `Timer` using `#[derive(Timer)]`, which provides modular and reusable timing functions for both sync and async contexts.
 //!
 //! ## Test Suite
@@ -119,13 +119,14 @@ impl MemoryComplexity for MemoryMeasurement {
         T: Timer,
     {
         let mut system = SingleSystemMetricsCollector::new();
-        let initial_mem_usage = system.refresh_initial_metrics()?;
+        let (initial_mem_usage, initial_swap_usage) = system.refresh_initial_metrics()?;
         let (start_time, start_instant) = T::start_timer_sync()?;
 
         // Execute the process
         process();
 
-        let avg_mem_usage = system.refresh_final_metrics(initial_mem_usage)?;
+        let (avg_mem_usage, avg_swap_usage) =
+            system.refresh_final_metrics((initial_mem_usage, initial_swap_usage))?;
 
         let (start_time_millis, end_time_millis, elapsed_time) =
             T::stop_timer_sync(start_time, start_instant)?;
@@ -135,6 +136,7 @@ impl MemoryComplexity for MemoryMeasurement {
             end_time_millis,
             elapsed_time,
             avg_mem_usage,
+            avg_swap_usage,
             None,
         ))
     }
@@ -146,7 +148,7 @@ impl MemoryComplexity for MemoryMeasurement {
         T: Timer,
     {
         let mut system = SingleSystemMetricsCollector::new();
-        let initial_mem_usage = system.refresh_initial_metrics()?;
+        let (initial_mem_usage, initial_swap_usage) = system.refresh_initial_metrics()?;
         let (start_time, start_instant) = T::start_timer_sync()?;
 
         let collector = SystemMetricsCollectorSync::new();
@@ -156,7 +158,8 @@ impl MemoryComplexity for MemoryMeasurement {
         let thread_data =
             SystemMetricsCollectorSync::collect_thread_sys_metrics(&collector, process)?;
 
-        let avg_mem_usage = system.refresh_final_metrics(initial_mem_usage)?;
+        let (avg_mem_usage, avg_swap_usage) =
+            system.refresh_final_metrics((initial_mem_usage, initial_swap_usage))?;
 
         let (start_time_millis, end_time_millis, elapsed_time) =
             T::stop_timer_sync(start_time, start_instant)?;
@@ -166,6 +169,7 @@ impl MemoryComplexity for MemoryMeasurement {
             end_time_millis,
             elapsed_time,
             avg_mem_usage,
+            avg_swap_usage,
             Some(thread_data),
         ))
     }
@@ -177,13 +181,14 @@ impl MemoryComplexity for MemoryMeasurement {
         T: Timer,
     {
         let mut system = SingleSystemMetricsCollector::new();
-        let initial_mem_usage = system.refresh_initial_metrics()?;
+        let (initial_mem_usage, initial_swap_usage) = system.refresh_initial_metrics()?;
         let (start_time, start_instant) = T::start_timer_async().await?;
 
         // Execute the process
         process();
 
-        let avg_mem_usage = system.refresh_final_metrics(initial_mem_usage)?;
+        let (avg_mem_usage, avg_swap_usage) =
+            system.refresh_final_metrics((initial_mem_usage, initial_swap_usage))?;
 
         let (start_time_millis, end_time_millis, elapsed_time) =
             T::stop_timer_async(start_time, start_instant).await?;
@@ -193,6 +198,7 @@ impl MemoryComplexity for MemoryMeasurement {
             end_time_millis,
             elapsed_time,
             avg_mem_usage,
+            avg_swap_usage,
             None,
         ))
     }
@@ -204,7 +210,7 @@ impl MemoryComplexity for MemoryMeasurement {
         T: Timer,
     {
         let mut system = SingleSystemMetricsCollector::new();
-        let initial_mem_usage = system.refresh_initial_metrics()?;
+        let (initial_mem_usage, initial_swap_usage) = system.refresh_initial_metrics()?;
 
         let (start_time, start_instant) = T::start_timer_async().await?;
 
@@ -216,7 +222,8 @@ impl MemoryComplexity for MemoryMeasurement {
             SystemMetricsCollectorAsync::collect_thread_sys_metrics_async(&collector, process)
                 .await?;
 
-        let avg_mem_usage = system.refresh_final_metrics(initial_mem_usage)?;
+        let (avg_mem_usage, avg_swap_usage) =
+            system.refresh_final_metrics((initial_mem_usage, initial_swap_usage))?;
 
         let (start_time_millis, end_time_millis, elapsed_time) =
             T::stop_timer_async(start_time, start_instant).await?;
@@ -226,6 +233,7 @@ impl MemoryComplexity for MemoryMeasurement {
             end_time_millis,
             elapsed_time,
             avg_mem_usage,
+            avg_swap_usage,
             Some(thread_data),
         ))
     }
